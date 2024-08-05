@@ -6,6 +6,8 @@ WORKDIR /app
 
 # Copy only the necessary files
 COPY requirements.txt .
+
+# Install dependencies into a temporary directory
 RUN pip install --no-cache-dir --target=/app/deps -r requirements.txt
 
 # Copy the rest of the application code
@@ -23,6 +25,9 @@ WORKDIR /app
 
 # Copy only the necessary files from the builder stage
 COPY --from=builder /app /app
+
+# Set the Python path to include the dependencies installed in /app/deps
+ENV PYTHONPATH="/app/deps"
 
 # Expose the port your app runs on
 EXPOSE 5000

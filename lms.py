@@ -13,9 +13,6 @@ BOOKS_TOTAL = Counter('books_total', 'Total number of books added')
 BOOKS_BORROWED = Counter('books_borrowed_total', 'Total number of books borrowed')
 BOOKS_RETURNED = Counter('books_returned_total', 'Total number of books returned')
 
-# Start Prometheus server on port 8000
-start_http_server(8000)
-
 def load_data():
     if not os.path.exists(BOOKS_FILE):
         with open(BOOKS_FILE, 'w') as f:
@@ -35,7 +32,6 @@ def metrics():
 
 
 @app.route('/')
-@REQUEST_TIME.time()
 def index():
     data = load_data()
     return render_template('index.html', books=data["books"], borrowed_books=data["borrowed_books"])
