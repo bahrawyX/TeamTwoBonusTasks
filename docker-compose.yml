@@ -7,7 +7,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - my-lms-storage:/mnt/data
+      - my-lms-storage:/app/data
     environment:
       - FLASK_ENV=development
 volumes:

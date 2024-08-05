@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: team-two-app-monitor
+  namespace: teamtwo-namespace
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: team-two-app
+  endpoints:
+    - port: "http"
+      path: /metrics
+      interval: 15s
