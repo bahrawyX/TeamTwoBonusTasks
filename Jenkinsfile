@@ -111,6 +111,7 @@ pipeline {
                     kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/alertmanager-deployment.yaml
                     kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/alertmanager-service.yaml
                     kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/servicemonitor.yaml
+                    kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/ingeress.yaml
                     """
                 }
             }
