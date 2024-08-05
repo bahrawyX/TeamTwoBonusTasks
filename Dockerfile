@@ -1,5 +1,5 @@
 # Stage 1: Builder
-FROM python:3.9-slim as builder
+FROM python:3.9-alpine as builder
 
 # Set the working directory
 WORKDIR /app
@@ -13,9 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
-# Optional: Run tests or additional build steps here
-# RUN pytest
-
 # Stage 2: Final Image
 FROM python:3.9-alpine
 
@@ -24,7 +21,9 @@ WORKDIR /app
 
 # Copy only the necessary files from the builder stage
 COPY --from=builder /app /app
-COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+
+# Remove any build artifacts and caches
+RUN rm -rf /root/.cache
 
 # Expose the port your app runs on
 EXPOSE 5000
