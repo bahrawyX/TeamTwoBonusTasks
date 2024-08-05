@@ -16,8 +16,7 @@ spec:
             name: team-two-app
             port:
               number: 5000
-    tls:
-    - hosts:
-      - ac1a16fdbdedc4bf488cf808966316e8-1863837325.us-east-2.elb.amazonaws.com
-      secretName: my-tls-secret
-
+  tls:  # Correct placement of the tls block
+  - hosts:
+    - ac1a16fdbdedc4bf488cf808966316e8-1863837325.us-east-2.elb.amazonaws.com
+    secretName: my-tls-secret
