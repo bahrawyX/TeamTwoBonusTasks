@@ -88,11 +88,11 @@ pipeline {
                         set AWS_ACCESS_KEY_ID=%AWS_ACCESS_KEY_ID%
                         set AWS_SECRET_ACCESS_KEY=%AWS_SECRET_ACCESS_KEY%
                         
-                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/namespace.yaml
-                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/pv.yaml
-                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/pvc.yaml
-                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/deployment.yaml
-                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/service.yaml
+                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}\\namespace.yaml
+                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}\\pv.yaml
+                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}\\pvc.yaml
+                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}\\deployment.yaml
+                        kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}\\service.yaml
                         """
                     }
                 }
