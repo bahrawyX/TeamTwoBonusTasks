@@ -141,15 +141,7 @@ pipeline {
             }
         }
 
-        stage('Deploy Node Exporter') {
-            steps {
-                script {
-                    bat """
-                    kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}\\node-exporter-daemonset.yaml
-                    """
-                }
-            }
-        }
+  
         stage('Port Forward Prometheus and Grafana') {
             steps {
                 script {
