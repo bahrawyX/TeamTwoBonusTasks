@@ -84,7 +84,7 @@ pipeline {
                 script {
                     // Port forwarding Prometheus and Grafana to local machine
                     bat """
-                        python \\app.py
+                        python ${env.WORKSPACE}\\app.py
                     """
                 }
             }
