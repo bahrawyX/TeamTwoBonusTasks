@@ -120,7 +120,7 @@ pipeline {
             steps {
                 script {
                     bat """
-                    kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}/node-exporter-daemonset.yaml
+                    kubectl --kubeconfig ${KUBECONFIG_PATH} apply -f ${K8S_DIR}\\node-exporter-daemonset.yaml
                     """
                 }
             }
