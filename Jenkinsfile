@@ -79,17 +79,7 @@ pipeline {
                 }
             }
         }
-        stage('Run The Python Flask App') {
-            steps {
-                script {
-                    // Port forwarding Prometheus and Grafana to local machine
-                    bat """
-                        python ${env.WORKSPACE}\\lms.py
-                    """
-                }
-            }
-        }
-    
+  
 
         stage('Deploy Kubernetes Resources') {
             steps {
