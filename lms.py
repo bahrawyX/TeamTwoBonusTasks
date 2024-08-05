@@ -1,12 +1,20 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify
-from prometheus_client import start_http_server, Summary, Counter, Gauge, Histogram
-from prometheus_client.core import CollectorRegistry
+from prometheus_client import start_http_server, Summary, Counter, generate_latest
 import json
 import os
 
 app = Flask(__name__)
 
 BOOKS_FILE = 'books.json'
+
+# Prometheus metrics
+REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
+BOOKS_TOTAL = Counter('books_total', 'Total number of books added')
+BOOKS_BORROWED = Counter('books_borrowed_total', 'Total number of books borrowed')
+BOOKS_RETURNED = Counter('books_returned_total', 'Total number of books returned')
+
+# Start Prometheus server on port 8000
+start_http_server(8000)
 
 def load_data():
     if not os.path.exists(BOOKS_FILE):
@@ -20,12 +28,20 @@ def save_data(data):
     with open(BOOKS_FILE, 'w') as f:
         json.dump(data, f)
 
+
+@app.route('/metrics')
+def metrics():
+    return generate_latest(), 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+
 @app.route('/')
+@REQUEST_TIME.time()
 def index():
     data = load_data()
     return render_template('index.html', books=data["books"], borrowed_books=data["borrowed_books"])
 
 @app.route('/add_book', methods=['POST'])
+@REQUEST_TIME.time()
 def add_book():
     data = load_data()
     isbn = request.form['isbn']
@@ -39,11 +55,13 @@ def add_book():
     new_book = {"ISBN": isbn, "Title": title, "Author": author, "Quantity": quantity}
     if new_book not in data["books"]:
         data["books"].append(new_book)
+        BOOKS_TOTAL.inc()  # Increment the total books counter
         save_data(data)
 
     return redirect(url_for('index'))
 
 @app.route('/remove_book', methods=['POST'])
+@REQUEST_TIME.time()
 def remove_book():
     data = load_data()
     isbn = request.form['isbn']
@@ -52,6 +70,7 @@ def remove_book():
     return redirect(url_for('index'))
 
 @app.route('/search_book', methods=['GET'])
+@REQUEST_TIME.time()
 def search_book():
     data = load_data()
     search_query = request.args.get('query')
@@ -59,6 +78,7 @@ def search_book():
     return jsonify(results)
 
 @app.route('/borrow_book', methods=['POST'])
+@REQUEST_TIME.time()
 def borrow_book():
     data = load_data()
     isbn = request.form['isbn']
@@ -68,6 +88,7 @@ def borrow_book():
         if book["ISBN"] == isbn and book["Quantity"] > 0:
             data["borrowed_books"][isbn] = {"Title": book["Title"], "UserID": user_id}
             book["Quantity"] -= 1
+            BOOKS_BORROWED.inc()  # Increment the borrowed books counter
             save_data(data)
             break
     else:
@@ -76,6 +97,7 @@ def borrow_book():
     return redirect(url_for('index'))
 
 @app.route('/return_book', methods=['POST'])
+@REQUEST_TIME.time()
 def return_book():
     data = load_data()
     isbn = request.form['isbn']
@@ -85,6 +107,7 @@ def return_book():
         for book in data["books"]:
             if book["ISBN"] == isbn:
                 book["Quantity"] += 1
+                BOOKS_RETURNED.inc()  # Increment the returned books counter
                 break
         del data["borrowed_books"][isbn]
         save_data(data)
