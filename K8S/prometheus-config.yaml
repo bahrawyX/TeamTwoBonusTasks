@@ -9,6 +9,7 @@ data:
       scrape_interval: 15s
 
     scrape_configs:
-      - job_name: 'prometheus'
+        - job_name: 'team-two-app'
+        scrape_interval: 30s
         static_configs:
-          - targets: ['localhost:9090']
+          - targets: ['ac1a16fdbdedc4bf488cf808966316e8-1863837325.us-east-2.elb.amazonaws.com:5000']

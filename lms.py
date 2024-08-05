@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify
 from prometheus_client import start_http_server, Summary, Counter, Gauge, Histogram
+from prometheus_client.core import CollectorRegistry
 import json
 import os
 
