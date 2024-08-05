@@ -125,6 +125,18 @@ pipeline {
                 }
             }
         }
+        stage('Port Forward Prometheus and Grafana') {
+            steps {
+                script {
+                    // Port forwarding Prometheus and Grafana to local machine
+                    bat """
+                    start kubectl --kubeconfig ${KUBECONFIG_PATH} port-forward svc/prometheus 9090:9090 -n teamtwo-namespace
+                    start kubectl --kubeconfig ${KUBECONFIG_PATH} port-forward svc/grafana 3000:3000 -n teamtwo-namespace
+                    """
+                }
+            }
+        }
+    }
     }
 
     post {
