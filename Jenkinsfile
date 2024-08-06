@@ -41,13 +41,14 @@ pipeline {
                 }
             }
         }
-           stage('SonarQube Analysis') {
+        stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SONARQUBE') { // Ensure 'SONARQUBE' matches your SonarQube server configuration in Jenkins
-                    bat 'C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000'
+                    bat 'C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789'
                 }
             }
         }
+
         
         stage('Scan Docker Image with Grype') {
             steps {
