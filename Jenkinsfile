@@ -45,24 +45,20 @@ pipeline {
                     }
                 }
 
-                stage('CODE QUALITY CHECK') {
+                 stage('SonarQube Analysis') {  // Removed nested 'stage'
                     steps {
-                        stage('SonarQube Analysis') {
-                            steps {
-                                withSonarQubeEnv('SONARQUBE') { 
-                                    script {
-                                        def outputFile = "${env.WORKSPACE}\\sonarqube-analysis-output.txt"
-                                        // Run SonarQube analysis and redirect output to a file
-                                        bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789 > ${outputFile}"
-                                        // Optionally, print the file content in the console
-                                        bat "type ${outputFile}"
-                                    }
-                                }
+                        withSonarQubeEnv('SONARQUBE') { 
+                            script {
+                                def outputFile = "${env.WORKSPACE}\\sonarqube-analysis-output.txt"
+                                // Run SonarQube analysis and redirect output to a file
+                                bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789 > ${outputFile}"
+                                // Optionally, print the file content in the console
+                                bat "type ${outputFile}"
                             }
                         }
                     }
                 }
-                stage('Load Testing Check') {
+                stage('Load Testing') {
                     steps {
                         script {
                             bat 'k6 run load_test.js'
