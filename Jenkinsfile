@@ -21,15 +21,17 @@ pipeline {
             }
         }
         stage('Install Grype') {
-            steps {
-                script {
-                    bat '''
-                    curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b C:\\Windows\\System32
-                    grype version
-                    '''
-                }
+        steps {
+            script {
+                bat '''
+                powershell -Command "Invoke-WebRequest -Uri https://github.com/anchore/grype/releases/latest/download/grype_Windows_x86_64.zip -OutFile grype.zip"
+                powershell -Command "Expand-Archive -Path grype.zip -DestinationPath C:\\grype"
+                set PATH=%PATH%;C:\\grype
+                grype version
+                '''
             }
         }
+    }
        stage('Build Docker Image') {
             steps {
                 script {
@@ -38,16 +40,16 @@ pipeline {
                 }
             }
         }
-        stage('Scan Docker Image with Grype Will Fail If High Severity Vulnerabilities Found') {
+            stage('Scan Docker Image with Grype') {
                 steps {
                     script {
-                        def scanResult = bat(script: "grype ${DOCKER_IMAGE}:${env.BUILD_NUMBER} --fail-on high --output table", returnStatus: true)
+                        def scanResult = bat(script: "C:\\grype\\grype ${DOCKER_IMAGE}:${env.BUILD_NUMBER} --fail-on high --output table", returnStatus: true)
                         if (scanResult != 0) {
                             error "High severity vulnerabilities found in the image. Failing the build."
                         }
                     }
                 }
-        }
+            }
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
