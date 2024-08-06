@@ -25,17 +25,26 @@ pipeline {
                     }
                 }
 
-                stage('Install and Use Grype') {
-                    steps {
-                        script {
-                            powershell '''
-                            Invoke-WebRequest -Uri https://raw.githubusercontent.com/anchore/grype/main/install.sh -OutFile grype-install.sh
-                            bash .\\grype-install.sh -b C:\\Windows\\System32
-                            grype version
-                            '''
-                        }
-                    }
+           stage('Install and Use Grype') {
+            steps {
+                script {
+                    powershell '''
+                    # Download the Grype install script
+                    Invoke-WebRequest -Uri https://raw.githubusercontent.com/anchore/grype/main/install.ps1 -OutFile grype-install.ps1
+
+                    # Run the installation script
+                    .\\grype-install.ps1 -DestinationPath C:\\grype
+
+                    # Add Grype to the PATH (optional)
+                    $env:Path += ";C:\\grype"
+
+                    # Verify Grype installation
+                    grype version
+                    '''
                 }
+            }
+        }
+
 
                 stage('Build Docker Image') {
                     steps {
