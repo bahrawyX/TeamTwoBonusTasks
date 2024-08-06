@@ -35,9 +35,9 @@ pipeline {
 
             // Step 2: Use Grype to scan an image (replace 'your-image-name' with the actual image name)
             // Step 3: Save the output to a file
-            powershell '''
-            grype your-image-name | Out-File -FilePath grype-output.txt -Encoding utf8
-            '''
+          powershell """
+                grype xbahrawy/finalproject${env.BUILD_NUMBER} | Out-File -FilePath grype-output.txt -Encoding utf8
+            """
         }
     }
 }
