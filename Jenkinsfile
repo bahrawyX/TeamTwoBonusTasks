@@ -12,6 +12,7 @@ pipeline {
         TERRAFORM_CONFIG_PATH = "${env.WORKSPACE}\\terraform"
         KUBECONFIG_PATH = "${env.WORKSPACE}\\kubeconfig"
         K8S_DIR = "${env.WORKSPACE}\\K8S"
+        HELM_DIR = "${env.WORKSPACE}\\helm"
     }
 
     stages {
@@ -24,7 +25,7 @@ pipeline {
                     }
                 }
 
-                stage('Install And Use Grype') {
+                stage('Install and Use Grype') {
                     steps {
                         script {
                             powershell '''
@@ -44,20 +45,24 @@ pipeline {
                         }
                     }
                 }
-
-                    stage('Terraform Code Check') {
-                        steps {
-                            script {
-                                def scanResult = bat(script: 'terrascan scan', returnStatus: true)
-                                if (scanResult != 0) {
-                                    echo "Terrascan detected security vulnerabilities. Please review the scan results."
-                                    echo "Continuing pipeline despite vulnerabilities..."
-                                } else {
-                                    echo "Terrascan scan completed successfully with no vulnerabilities detected."
-                                }
+                
+                stage('Terraform Code Check') {
+                    steps {
+                        script {
+                            def scanOutput = bat(script: 'terrascan scan -o json > terrascan_output.json', returnStdout: true)
+                            def scanResult = bat(script: 'terrascan scan', returnStatus: true)
+                            
+                            if (scanResult != 0) {
+                                echo "Terrascan detected security vulnerabilities. Please review the scan results in terrascan_output.json."
+                                echo "Continuing pipeline despite vulnerabilities..."
+                            } else {
+                                echo "Terrascan scan completed successfully with no vulnerabilities detected."
                             }
+                            
+                            archiveArtifacts artifacts: 'terrascan_output.json', allowEmptyArchive: true
                         }
                     }
+                }
 
                 stage('SonarQube Analysis') {
                     steps {
@@ -124,18 +129,41 @@ pipeline {
                     }
                 }
 
-                
                 stage('Terraform Apply') {
                     steps {
                         script {
                             // Apply the Terraform plan to deploy the infrastructure
-                            dir("${env.TERRAFORM_CONFIG_PATH}") {
-                                bat """${env.TERRAFORM_DIR} apply -auto-approve"""
+                            echo "Applying the Terraform plan to deploy the infrastructure..."
+                            // dir("${env.TERRAFORM_CONFIG_PATH}") {
+                            //     bat """${env.TERRAFORM_DIR} apply -auto-approve"""
+                            // }
+                        }
+                    }
+                }
+
+                stage('Install Helm and Deploy Resources') {
+                    steps {
+                        script {
+                            // Install Helm if not already installed
+                            bat '''
+                            if NOT EXIST "C:\\Program Files\\helm" (
+                                Invoke-WebRequest -Uri https://get.helm.sh/helm-v3.7.0-windows-amd64.zip -OutFile helm.zip
+                                Expand-Archive helm.zip -DestinationPath "C:\\Program Files"
+                                del helm.zip
+                            )
+                            set PATH=%PATH%;C:\\Program Files\\helm
+                            '''
+                            // Use Helm to deploy charts or resources
+                            dir("${HELM_DIR}") {
+                                bat '''
+                                helm repo add stable https://charts.helm.sh/stable
+                                helm repo update
+                                helm install my-release stable/nginx-ingress
+                                '''
                             }
                         }
                     }
                 }
-                
 
                 stage('Verify Kubeconfig Path') {
                     steps {

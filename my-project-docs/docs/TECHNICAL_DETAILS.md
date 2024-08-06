@@ -43,8 +43,8 @@ Now, we will deploy the containerized application on an AWS EKS cluster.
 
 ### Code to Apply Kubernetes Configuration
 
-\`\`\`bash
 # Step 3.1: Apply Kubernetes Configuration Files With All The promethues And Grafana
+\`\`\`bash
 kubectl create namespace  teamtwo-namespace
 kubectl apply -f namespace.yaml
 kubectl apply -f pv.yaml
@@ -63,6 +63,22 @@ kubectl apply -f alertmanager-deployment.yaml
 This will deploy the application on your Kubernetes cluster and expose it to the internet.
 
 ---
+# 3.2 **Access Prometheus**:
+
+   Access Prometheus via the LoadBalancer IP or DNS:
+
+   ```url
+   http://<LoadBalancer-IP>:9090
+   ```
+# 3.3 **Access Grafana**:
+
+Access Grafana via the LoadBalancer IP or DNS:
+
+```url
+http://<LoadBalancer-IP>:3000
+
+```
+
 
 ## Step 4: Set Up CI/CD Pipeline with Jenkins
 
