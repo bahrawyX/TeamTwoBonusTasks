@@ -18,9 +18,7 @@ pipeline {
         stage('CI Pipeline') {
             parallel {
                 stage('Clone Git Repository') {
-                    steps {
                         echo "Cloning the Git repository"
-                    }
                 }
 
                 stage('Install Grype') {
