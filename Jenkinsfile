@@ -73,11 +73,11 @@ pipeline {
                         withSonarQubeEnv('SONARQUBE') { 
                             script {
                                 echo    "Running SonarQube analysis"
-                                // def outputFile = "${env.WORKSPACE}\\sonarqube-analysis-output.txt"
-                                // // Run SonarQube analysis and redirect output to a file
-                                // bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789 > ${outputFile}"
-                                // // Optionally, print the file content in the console
-                                // bat "type ${outputFile}"
+                                def outputFile = "${env.WORKSPACE}\\sonarqube-analysis-output.txt"
+                                // Run SonarQube analysis and redirect output to a file
+                                bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789 > ${outputFile}"
+                                // Optionally, print the file content in the console
+                                bat "type ${outputFile}"
                             }
                         }
                     }
@@ -139,9 +139,9 @@ pipeline {
                         script {
                             // Apply the Terraform plan to deploy the infrastructure
                             echo "Applying the Terraform plan to deploy the infrastructure..."
-                            // dir("${env.TERRAFORM_CONFIG_PATH}") {
-                            //     bat """${env.TERRAFORM_DIR} apply -auto-approve"""
-                            // }
+                            dir("${env.TERRAFORM_CONFIG_PATH}") {
+                                bat """${env.TERRAFORM_DIR} apply -auto-approve"""
+                            }
                         }
                     }
                 }
