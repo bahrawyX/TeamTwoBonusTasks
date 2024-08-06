@@ -20,8 +20,6 @@ pipeline {
                 stage('Clone Git Repository') {
                     steps {
                         echo "Cloning the Git repository"
-                        // Add your git clone command here if needed
-                        git url: 'https://github.com/your-repo.git', branch: 'main'
                     }
                 }
 
