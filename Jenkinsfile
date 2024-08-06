@@ -24,7 +24,7 @@ pipeline {
                     }
                 }
 
-                stage('Install Grype') {
+                stage('Install And Use Grype') {
                     steps {
                         script {
                             powershell '''
