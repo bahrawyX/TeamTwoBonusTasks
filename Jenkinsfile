@@ -10,7 +10,7 @@ pipeline {
         AWS_CREDENTIALS = 'fd08b267-20f1-422b-b2cf-a2f446f18839'
         TERRAFORM_CONFIG_PATH = "${env.WORKSPACE}\\terraform"
         KUBECONFIG_PATH = "${env.WORKSPACE}\\kubeconfig"
-        K8S_DIR = "${env.WORKSPACE}\\K8S" // Added to easily reference the K8S directory
+        K8S_DIR = "${env.WORKSPACE}\\K8S"
     }
 
     stages {
@@ -20,38 +20,20 @@ pipeline {
                 // Add your git clone command here if needed
             }
         }
-            stage('Install Grype') {
-                steps {
-                    script {
-                        bat '''
-                        powershell -Command "
-                            $ErrorActionPreference = 'Stop'
-                            $ProgressPreference = 'SilentlyContinue'
-                            $grypePath = 'C:\\grype'
-                            $grypeZip = 'C:\\grype.zip'
-                            
-                            # Download Grype
-                            Invoke-WebRequest -Uri 'https://github.com/anchore/grype/releases/latest/download/grype_Windows_x86_64.zip' -OutFile $grypeZip
-                            
-                            # Create directory if it doesn't exist
-                            if (-not (Test-Path $grypePath)) {
-                                New-Item -ItemType Directory -Force -Path $grypePath
-                            }
-                            
-                            # Extract Grype
-                            Expand-Archive -Path $grypeZip -DestinationPath $grypePath -Force
-                            
-                            # Add to PATH
-                            $env:PATH += ';' + $grypePath
-                            
-                            # Verify installation
-                            & $grypePath\\grype.exe version
-                        "
-                        '''
-                    }
+        
+        stage('Install Grype') {
+            steps {
+                script {
+                    bat '''
+                    curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh -o grype-install.sh
+                    sh grype-install.sh -b C:\\Windows\\System32
+                    grype version
+                    '''
                 }
             }
-       stage('Build Docker Image') {
+        }
+
+        stage('Build Docker Image') {
             steps {
                 script {
                     // Build the Docker image with build number as tag
@@ -59,6 +41,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Scan Docker Image with Grype') {
             steps {
                 script {
@@ -69,6 +52,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
@@ -85,6 +69,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Terraform Init') {
             steps {
                 script {
@@ -102,17 +87,6 @@ pipeline {
                     // Generate and show the Terraform execution plan
                     dir("${env.TERRAFORM_CONFIG_PATH}") {
                         bat """${env.TERRAFORM_DIR} plan"""
-                    }
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                script {
-                    // Apply the Terraform plan to deploy the infrastructure
-                    dir("${env.TERRAFORM_CONFIG_PATH}") {
-                        bat """${env.TERRAFORM_DIR} apply -auto-approve"""
                     }
                 }
             }
@@ -180,7 +154,6 @@ pipeline {
             }
         }
 
-  
         stage('Port Forward Prometheus and Grafana') {
             steps {
                 script {
