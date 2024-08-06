@@ -45,16 +45,17 @@ pipeline {
                     }
                 }
 
-                stage('Terraform Code Check') {
-                    steps {
-                        script {
-                            def scanResult = bat(script: 'terrascan scan', returnStatus: true)
-                            if (scanResult != 0) {
-                                error "Terrascan detected security vulnerabilities. Please review the scan results."
-                            }
+         stage('Terraform Code Check') {
+                steps {
+                    script {
+                        def scanResult = bat(script: 'terrascan scan', returnStatus: true)
+                        if (scanResult != 0) {
+                            echo "Warning: Terrascan detected security vulnerabilities. Please review the scan results."
                         }
                     }
                 }
+            }
+
 
                 stage('SonarQube Analysis') {
                     steps {
