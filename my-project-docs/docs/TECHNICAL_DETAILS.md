@@ -296,7 +296,6 @@ We created a public EC2 instance using Terraform.
 
 The EC2 instance had an 8 GiB volume, and Jenkins encountered a disk space issue:
 
-```plaintext
 Disk space is below threshold of 1.00 GiB. Only 623.43 MiB out of 6.71 GiB left on /var/jenkins_home
 
 
@@ -364,4 +363,6 @@ This documentation provides a comprehensive overview of our project, highlightin
 Grype was employed to scan Docker images for vulnerabilities, ensuring that the containers are secure before deployment.
 
 
+
+###P
 Return to [Main Documentation](README.md).
