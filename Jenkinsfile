@@ -146,29 +146,7 @@ pipeline {
                     }
                 }
 
-                stage('Install Helm and Deploy Resources') {
-                    steps {
-                        script {
-                            // Install Helm if not already installed
-                            bat '''
-                            if NOT EXIST "C:\\Program Files\\helm" (
-                                Invoke-WebRequest -Uri https://get.helm.sh/helm-v3.7.0-windows-amd64.zip -OutFile helm.zip
-                                Expand-Archive helm.zip -DestinationPath "C:\\Program Files"
-                                del helm.zip
-                            )
-                            set PATH=%PATH%;C:\\Program Files\\helm
-                            '''
-                            // Use Helm to deploy charts or resources
-                            dir("${HELM_DIR}") {
-                                bat '''
-                                helm repo add stable https://charts.helm.sh/stable
-                                helm repo update
-                                helm install my-release stable/nginx-ingress
-                                '''
-                            }
-                        }
-                    }
-                }
+        
 
                 stage('Verify Kubeconfig Path') {
                     steps {
