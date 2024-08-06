@@ -49,14 +49,18 @@ pipeline {
                 stage('Terraform Code Check') {
                     steps {
                         script {
-                            def scanOutput = bat(script: 'terrascan scan -o json > terrascan_output.json', returnStdout: true)
-                            def scanResult = bat(script: 'terrascan scan', returnStatus: true)
+                            def scanResult = bat(script: 'terrascan scan -o json > terrascan_output.json', returnStatus: true)
                             
-                            if (scanResult != 0) {
-                                echo "Terrascan detected security vulnerabilities. Please review the scan results in terrascan_output.json."
-                                echo "Continuing pipeline despite vulnerabilities..."
-                            } else {
+                            if (scanResult == 0) {
                                 echo "Terrascan scan completed successfully with no vulnerabilities detected."
+                            } else if (scanResult == 5) {
+                                echo "Terrascan detected vulnerabilities and skipped some rules. Please review the scan results in terrascan_output.json."
+                                echo "Continuing pipeline with warnings..."
+                            } else {
+                                echo "Terrascan scan failed or detected critical vulnerabilities. Exit code: ${scanResult}"
+                                echo "Please review the scan results in terrascan_output.json."
+                                // Uncomment the next line if you want to fail the pipeline for other exit codes
+                                // error("Terrascan scan failed")
                             }
                             
                             archiveArtifacts artifacts: 'terrascan_output.json', allowEmptyArchive: true
