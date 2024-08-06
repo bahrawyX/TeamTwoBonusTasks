@@ -25,25 +25,24 @@ pipeline {
                     }
                 }
 
-           stage('Install and Use Grype') {
+        stage('Install and Use Grype') {
             steps {
                 script {
+                    // Step 1: Download and install Grype
                     powershell '''
-                    # Download the Grype install script
                     Invoke-WebRequest -Uri https://raw.githubusercontent.com/anchore/grype/main/install.ps1 -OutFile grype-install.ps1
+                    .\\grype-install.ps1
+                    '''
 
-                    # Run the installation script
-                    .\\grype-install.ps1 -DestinationPath C:\\grype
-
-                    # Add Grype to the PATH (optional)
-                    $env:Path += ";C:\\grype"
-
-                    # Verify Grype installation
-                    grype version
+                    // Step 2: Use Grype to scan an image (replace 'your-image-name' with the actual image name)
+                    // Step 3: Save the output to a file
+                    powershell '''
+                    grype xbahrawy/final | Out-File -FilePath grype-output.txt -Encoding utf8
                     '''
                 }
             }
         }
+
 
 
                 stage('Build Docker Image') {
