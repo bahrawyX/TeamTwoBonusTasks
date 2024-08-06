@@ -91,6 +91,17 @@ pipeline {
                 }
             }
         }
+        // Uncomment when ready to apply the Terraform plan
+        // stage('Terraform Apply') {
+        //     steps {
+        //         script {
+        //             // Apply the Terraform plan to deploy the infrastructure
+        //             dir("${env.TERRAFORM_CONFIG_PATH}") {
+        //                 bat """${env.TERRAFORM_DIR} apply -auto-approve"""
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Verify Kubeconfig Path') {
             steps {
