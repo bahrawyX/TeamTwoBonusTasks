@@ -1,4 +1,4 @@
-pipeline { 
+pipeline {
     agent any
 
     environment {
@@ -15,12 +15,13 @@ pipeline {
     }
 
     stages {
-        stage('CI') {
+        stage('CI Pipeline') {
             parallel {
                 stage('Clone Git Repository') {
                     steps {
                         echo "Cloning the Git repository"
                         // Add your git clone command here if needed
+                        git url: 'https://github.com/your-repo.git', branch: 'main'
                     }
                 }
 
@@ -45,7 +46,7 @@ pipeline {
                     }
                 }
 
-                stage('SonarQube Analysis') {
+                stage('Code Quality Check') {
                     steps {
                         withSonarQubeEnv('SONARQUBE') { 
                             script {
@@ -58,10 +59,18 @@ pipeline {
                         }
                     }
                 }
+
+                stage('Load Testing Check') {
+                    steps {
+                        script {
+                            bat 'k6 run load_test.js'
+                        }
+                    }
+                }
             }
         }
 
-        stage('CD') {
+        stage('CD Pipeline') {
             stages {
                 stage('Push Docker Image to Docker Hub') {
                     steps {
