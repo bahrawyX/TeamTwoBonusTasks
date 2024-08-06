@@ -45,15 +45,6 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SONARQUBE') {
-                    // Run SonarQube analysis
-                    bat 'C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789'
-                }
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
                 withSonarQubeEnv('SONARQUBE') { 
                     script {
                         def outputFile = "${env.WORKSPACE}\\sonarqube-analysis-output.txt"
@@ -65,7 +56,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('Push Docker Image to Docker Hub') {
             steps {
