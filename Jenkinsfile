@@ -20,37 +20,37 @@ pipeline {
                 // Add your git clone command here if needed
             }
         }
-        stage('Install Grype') {
-            steps {
-                script {
-                    bat '''
-                    powershell -Command "
-                        $ErrorActionPreference = 'Stop'
-                        $ProgressPreference = 'SilentlyContinue'
-                        $grypePath = 'C:\\grype'
-                        $grypeZip = 'C:\\grype.zip'
-                        
-                        # Download Grype
-                        Invoke-WebRequest -Uri 'https://github.com/anchore/grype/releases/latest/download/grype_Windows_x86_64.zip' -OutFile $grypeZip
-                        
-                        # Create directory if it doesn't exist
-                        if (-not (Test-Path $grypePath)) {
-                            New-Item -ItemType Directory -Force -Path $grypePath
-                        }
-                        
-                        # Extract Grype
-                        Expand-Archive -Path $grypeZip -DestinationPath $grypePath -Force
-                        
-                        # Add to PATH
-                        $env:PATH += ';' + $grypePath
-                        
-                        # Verify installation
-                        grype version
-                    "
-                    '''
+            stage('Install Grype') {
+                steps {
+                    script {
+                        bat '''
+                        powershell -Command "
+                            $ErrorActionPreference = 'Stop'
+                            $ProgressPreference = 'SilentlyContinue'
+                            $grypePath = 'C:\\grype'
+                            $grypeZip = 'C:\\grype.zip'
+                            
+                            # Download Grype
+                            Invoke-WebRequest -Uri 'https://github.com/anchore/grype/releases/latest/download/grype_Windows_x86_64.zip' -OutFile $grypeZip
+                            
+                            # Create directory if it doesn't exist
+                            if (-not (Test-Path $grypePath)) {
+                                New-Item -ItemType Directory -Force -Path $grypePath
+                            }
+                            
+                            # Extract Grype
+                            Expand-Archive -Path $grypeZip -DestinationPath $grypePath -Force
+                            
+                            # Add to PATH
+                            $env:PATH += ';' + $grypePath
+                            
+                            # Verify installation
+                            & $grypePath\\grype.exe version
+                        "
+                        '''
+                    }
                 }
             }
-        }
        stage('Build Docker Image') {
             steps {
                 script {
