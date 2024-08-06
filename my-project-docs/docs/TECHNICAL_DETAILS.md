@@ -363,6 +363,140 @@ This documentation provides a comprehensive overview of our project, highlightin
 Grype was employed to scan Docker images for vulnerabilities, ensuring that the containers are secure before deployment.
 
 
+### Problems Faced
 
-###P
+1. **Reapplying the Terraform code which caused Redundancy Error**
+
+    - **Problem**: Reapplying the Terraform code led to redundancy errors because resources were already created.
+    
+    - **Approaches**:
+        1.1 **Bash Script for Resource Checking**: Developed a bash script to fetch existing resources from AWS and check if they are already present. If found, skip the corresponding Terraform command.
+        
+        1.2 **Bash Script for Resource Cleanup**: Created a bash script to destroy resources after the pipeline run, ensuring a clean slate for the next deployment.
+        
+        1.3 **Commenting the Apply Command**: Run Terraform apply command once and then comment it out in the script until further updates are needed (The simplest and most efficient approach).
+
+2. **Terraform Configuration for the EKS Cluster**
+
+    - **Problem**: Configuring the EKS cluster with the correct security group settings to allow traffic on specific ports.
+
+    - **Approaches**:
+        2.1 **Security Group Update**: Updated the Terraform code to add a new ingress rule to the security group. The revised security group configuration now includes the following ingress rule, which allows TCP traffic on port 8080 from any IP address:
+        
+        ```hcl
+        resource "aws_security_group" "example" {
+            # Other configurations...
+        
+            ingress {
+                from_port   = 8080
+                to_port     = 8080
+                protocol    = "tcp"
+                cidr_blocks = ["0.0.0.0/0"]
+            }
+            
+            # Other configurations...
+        }
+        ```
+
+3. **CI/CD Pipeline Integration Challenges**
+
+    - **Problem**: Integrating various tools like SonarQube, k6, and Grype into the CI/CD pipeline and ensuring smooth execution.
+
+    - **Approaches**:
+        3.1 **SonarQube Configuration**: Ensured SonarQube was properly configured in Jenkins by setting up the SonarQube scanner as a Jenkins plugin, and configured the SonarQube server connection in Jenkins settings.
+        
+        3.2 **Sequential Stages**: Broke down the pipeline into sequential stages for code analysis (SonarQube), load testing (k6), and security scanning (Grype). This ensured each stage executed independently and provided clear feedback for each tool.
+
+        3.3 **Docker Containers for Tools**: Used Docker containers to run tools like k6 and Grype to avoid environment conflicts on Jenkins. This also ensured consistent behavior across different pipeline executions.
+
+4. **Kubernetes Deployment Issues**
+
+    - **Problem**: Facing issues with deploying the application on Kubernetes, specifically with service exposure and pod configuration.
+
+    - **Approaches**:
+        4.1 **Debugging with kubectl logs**: Used `kubectl logs` to retrieve logs from failing pods, which helped diagnose issues like incorrect environment variables or image pull errors.
+        
+        4.2 **Rolling Update Strategy**: Implemented a rolling update strategy in the Kubernetes deployment configuration to ensure zero downtime during updates. This was done by setting `maxUnavailable` and `maxSurge` options in the deployment YAML.
+
+        4.3 **Ingress Configuration**: Configured an Ingress resource to expose the services externally, instead of relying on LoadBalancer services, which helped to manage traffic routing more efficiently.
+
+        ```yaml
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: example-ingress
+        spec:
+          rules:
+          - host: example.com
+            http:
+              paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: example-service
+                    port:
+                      number: 80
+        ```
+
+        This configuration allowed external access to the application through a specified domain.
+
+5. **Persistent Volume (PV) and Persistent Volume Claim (PVC) Binding Issues**
+
+    - **Problem**: Encountered issues with Kubernetes Persistent Volume (PV) and Persistent Volume Claim (PVC) where the PVCs were stuck in a pending state and not getting bound to the PVs.
+
+    - **Approaches**:
+        5.1 **Correct Storage Class Configuration**: Ensured that the PV and PVC were using the correct storage class. If the storage class is not specified or mismatched, the PVC will not bind to the PV. Updated the YAML configuration to include the correct storage class:
+
+        ```yaml
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: example-pvc
+        spec:
+          storageClassName: "standard"  # Ensure this matches the PV's storage class
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+        ```
+
+        5.2 **Matching Labels and Selectors**: Ensured that the labels in the PV match the selectors in the PVC, which is required for the binding process. Updated the YAML configuration as follows:
+
+        ```yaml
+        apiVersion: v1
+        kind: PersistentVolume
+        metadata:
+          name: example-pv
+          labels:
+            type: local
+        spec:
+          capacity:
+            storage: 1Gi
+          accessModes:
+            - ReadWriteOnce
+          hostPath:
+            path: "/mnt/data"
+        ---
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: example-pvc
+        spec:
+          selector:
+            matchLabels:
+              type: local  # This label should match the PV's label
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+        ```
+
+        5.3 **Debugging Binding Issues**: Used `kubectl describe pvc <pvc-name>` to identify the exact reason why the PVC was not getting bound. Addressed the issues based on the error messages provided in the output.
+
+
+
+
 Return to [Main Documentation](README.md).
