@@ -1,4 +1,4 @@
-pipeline {
+pipeline { 
     agent any
 
     environment {
@@ -15,7 +15,7 @@ pipeline {
     }
 
     stages {
-        stage('CI Pipeline') {
+        stage('CI PIPELINE') {
             parallel {
                 stage('Clone Git Repository') {
                     steps {
@@ -45,20 +45,23 @@ pipeline {
                     }
                 }
 
-                stage('Code Quality Check') {
+                stage('CODE QUALITY CHECK') {
                     steps {
-                        withSonarQubeEnv('SONARQUBE') { 
-                            script {
-                                def outputFile = "${env.WORKSPACE}\\sonarqube-analysis-output.txt"
-                                // Run SonarQube analysis and redirect output to a file
-                                bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789 > ${outputFile}"
-                                // Optionally, print the file content in the console
-                                bat "type ${outputFile}"
+                        stage('SonarQube Analysis') {
+                            steps {
+                                withSonarQubeEnv('SONARQUBE') { 
+                                    script {
+                                        def outputFile = "${env.WORKSPACE}\\sonarqube-analysis-output.txt"
+                                        // Run SonarQube analysis and redirect output to a file
+                                        bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789 > ${outputFile}"
+                                        // Optionally, print the file content in the console
+                                        bat "type ${outputFile}"
+                                    }
+                                }
                             }
                         }
                     }
                 }
-
                 stage('Load Testing Check') {
                     steps {
                         script {
@@ -66,10 +69,12 @@ pipeline {
                         }
                     }
                 }
+
+
             }
         }
 
-        stage('CD Pipeline') {
+        stage('CD PIPELINE') {
             stages {
                 stage('Push Docker Image to Docker Hub') {
                     steps {
