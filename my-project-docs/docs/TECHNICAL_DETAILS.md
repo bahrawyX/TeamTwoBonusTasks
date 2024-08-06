@@ -139,12 +139,16 @@ This Jenkinsfile defines a pipeline with build, test, and deploy stages for auto
 ![Terrascan Output 2](../images/terrascan2.png)
 - **Our Terraform Security Scans**: These images display the output of Terrascan, a tool used to scan our Terraform code for vulnerabilities and compliance issues. Ensuring that our infrastructure-as-code is secure and follows best practices is crucial for the stability and security of our deployment.
 
+##SonarQube
+![sonarqube Output](../images/sonarqube.png)
+ **Our Sonarqube Stats**
+
 ## Conclusion
 This documentation provides a comprehensive overview of our project, highlighting key stages such as Dockerization, Kubernetes deployment, CI/CD pipeline setup, and monitoring. The images included offer visual insights into the tools and processes we utilized to achieve a robust and scalable application deployment.
 
 ### Container Security with Grype
+![Grype Security Scan](../images/grype.png)
 Grype was employed to scan Docker images for vulnerabilities, ensuring that the containers are secure before deployment.
 
-![Grype Security Scan](../images/grype.png)
 
 Return to [Main Documentation](README.md).
