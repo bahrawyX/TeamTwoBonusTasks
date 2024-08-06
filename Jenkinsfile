@@ -122,7 +122,6 @@ pipeline {
                 }
 
                 
-                Uncomment the following stage when you are ready to apply the Terraform plan
                 stage('Terraform Apply') {
                     steps {
                         script {
