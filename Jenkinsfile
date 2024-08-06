@@ -2,10 +2,11 @@ pipeline {
     agent any
 
     environment {
+        // Docker and AWS Configuration
         DOCKER_IMAGE = "xbahrawy/finalproject"
-        TERRAFORM_DIR = "${terraform}" 
-        AWS_DIR = "${aws}"             
-        KUBECTL_DIR = "${kubectl}"     
+        TERRAFORM_DIR = "${terraform}"
+        AWS_DIR = "${aws}"
+        KUBECTL_DIR = "${kubectl}"
         DOCKER_CREDENTIALS = '135feaae-4bb5-4233-8869-4cf8939df9ed'
         AWS_CREDENTIALS = 'fd08b267-20f1-422b-b2cf-a2f446f18839'
         TERRAFORM_CONFIG_PATH = "${env.WORKSPACE}\\terraform"
@@ -20,6 +21,7 @@ pipeline {
                 // Add your git clone command here if needed
             }
         }
+
         stage('Install Grype') {
             steps {
                 script {
@@ -32,38 +34,39 @@ pipeline {
             }
         }
 
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image with build number as tag
+                    // Build the Docker image with the build number as the tag
                     docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
                 }
             }
         }
+
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SONARQUBE') { // Ensure 'SONARQUBE' matches your SonarQube server configuration in Jenkins
+                withSonarQubeEnv('SONARQUBE') {
+                    // Run SonarQube analysis
                     bat 'C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789'
                 }
             }
         }
 
-        
-        stage('Scan Docker Image with Grype') {
+        stage('SonarQube Analysis') {
             steps {
-                script {
-                    def scanResult = bat(script: "grype ${DOCKER_IMAGE}:${env.BUILD_NUMBER} --output table", returnStatus: true)
-                    if (scanResult != 0) {
-                        echo "Grype scan completed with some findings. Please review the results."
-                    } else {
-                        echo "Grype scan completed successfully with no findings."
+                withSonarQubeEnv('SONARQUBE') { 
+                    script {
+                        def outputFile = "${env.WORKSPACE}\\sonarqube-analysis-output.txt"
+                        // Run SonarQube analysis and redirect output to a file
+                        bat "C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.projectKey=TeamTwoProject -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_ac3e939a14240d3a85148fa7f97d9dfb46b02789 > ${outputFile}"
+                        // Optionally, print the file content in the console
+                        bat "type ${outputFile}"
                     }
                 }
             }
         }
 
-        
+
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
@@ -76,15 +79,15 @@ pipeline {
                         docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}
                         docker push ${DOCKER_IMAGE}:latest
                         """
-                    }                            
+                    }
                 }
             }
         }
-        
+
         stage('Terraform Init') {
             steps {
                 script {
-                    // Initialize Terraform
+                    // Initialize Terraform in the specified configuration path
                     dir("${env.TERRAFORM_CONFIG_PATH}") {
                         bat """${env.TERRAFORM_DIR} init"""
                     }
@@ -93,7 +96,7 @@ pipeline {
         }
 
         stage('Terraform Plan') {
-            steps { 
+            steps {
                 script {
                     // Generate and show the Terraform execution plan
                     dir("${env.TERRAFORM_CONFIG_PATH}") {
@@ -102,17 +105,20 @@ pipeline {
                 }
             }
         }
-        // Uncomment when ready to apply the Terraform plan
-        // stage('Terraform Apply') {
-        //     steps {
-        //         script {
-        //             // Apply the Terraform plan to deploy the infrastructure
-        //             dir("${env.TERRAFORM_CONFIG_PATH}") {
-        //                 bat """${env.TERRAFORM_DIR} apply -auto-approve"""
-        //             }
-        //         }
-        //     }
-        // }
+
+        /*
+        Uncomment the following stage when you are ready to apply the Terraform plan
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    // Apply the Terraform plan to deploy the infrastructure
+                    dir("${env.TERRAFORM_CONFIG_PATH}") {
+                        bat """${env.TERRAFORM_DIR} apply -auto-approve"""
+                    }
+                }
+            }
+        }
+        */
 
         stage('Verify Kubeconfig Path') {
             steps {
@@ -132,7 +138,7 @@ pipeline {
                         set AWS_SECRET_ACCESS_KEY=%AWS_SECRET_ACCESS_KEY%
                         set AWS_DEFAULT_REGION=us-east-2
                         
-                        aws eks --region %AWS_DEFAULT_REGION% update-kubeconfig --name team2_cluster --kubeconfig C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\TeamTwoFinalProjectPipeLine\\kubeconfig
+                        aws eks --region %AWS_DEFAULT_REGION% update-kubeconfig --name team2_cluster --kubeconfig ${KUBECONFIG_PATH}
                         """
                     }
                 }
@@ -179,7 +185,7 @@ pipeline {
         stage('Port Forward Prometheus and Grafana') {
             steps {
                 script {
-                    // Port forwarding Prometheus and Grafana to local machine
+                    // Port forwarding Prometheus and Grafana to the local machine
                     bat """
                     start kubectl --kubeconfig ${KUBECONFIG_PATH} port-forward svc/prometheus 9090:9090 -n teamtwo-namespace
                     start kubectl --kubeconfig ${KUBECONFIG_PATH} port-forward svc/grafana 3000:3000 -n teamtwo-namespace
@@ -187,7 +193,6 @@ pipeline {
                 }
             }
         }
-    
     }
 
     post {
@@ -198,7 +203,7 @@ pipeline {
             echo 'Pipeline completed successfully.'
         }
         failure {
-            echo "Pipeline failed. Destroying the infrastructure..."
+            echo "Pipeline failed. Please review the logs for more information."
         }
     }
 }
