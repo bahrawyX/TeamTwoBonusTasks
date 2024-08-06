@@ -25,22 +25,22 @@ pipeline {
                     }
                 }
 
- stage('Install and Use Grype') {
-    steps {
-        script {
-            // Step 1: Install Grype using Chocolatey
-            powershell '''
-            choco install grype -y
-            '''
+                stage('Install and Use Grype') {
+                    steps {
+                        script {
+                            // Step 1: Install Grype using Chocolatey
+                            powershell '''
+                            choco install grype -y
+                            '''
 
-            // Step 2: Use Grype to scan an image (replace 'your-image-name' with the actual image name)
-            // Step 3: Save the output to a file
-          powershell """
-                grype xbahrawy/finalproject | Out-File -FilePath grype-output.txt -Encoding utf8
-            """
-        }
-    }
-}
+                            // Step 2: Use Grype to scan an image (replace 'your-image-name' with the actual image name)
+                            // Step 3: Save the output to a file
+                        powershell """
+                                grype xbahrawy/finalproject:latest | Out-File -FilePath grype-output.txt -Encoding utf8
+                            """
+                        }
+                    }
+                }
 
 
 
