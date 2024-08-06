@@ -15,7 +15,7 @@ pip install -r requirements.txt
 python lms.py
 \`\`\`
 
-This will start the Flask application locally on `http://localhost:5000`.
+This will start the Flask application locally on \`http://localhost:5000\`.
 
 ---
 
@@ -43,9 +43,9 @@ Now, we will deploy the containerized application on an AWS EKS cluster.
 
 ### Code to Apply Kubernetes Configuration
 
-# Step 3.1: Apply Kubernetes Configuration Files With All The promethues And Grafana
 \`\`\`bash
-kubectl create namespace  teamtwo-namespace
+# Step 3.1: Apply Kubernetes Configuration Files With All The prometheus And Grafana
+kubectl create namespace teamtwo-namespace
 kubectl apply -f namespace.yaml
 kubectl apply -f pv.yaml
 kubectl apply -f pvc.yaml
@@ -63,22 +63,24 @@ kubectl apply -f alertmanager-deployment.yaml
 This will deploy the application on your Kubernetes cluster and expose it to the internet.
 
 ---
-# 3.2 **Access Prometheus**:
 
-   Access Prometheus via the LoadBalancer IP or DNS:
+### Step 3.2 Access Prometheus
 
-   ```url
-   http://<LoadBalancer-IP>:9090
-   ```
-# 3.3 **Access Grafana**:
+Access Prometheus via the LoadBalancer IP or DNS:
+
+\`\`\`url
+http://<LoadBalancer-IP>:9090
+\`\`\`
+
+### Step 3.3 Access Grafana
 
 Access Grafana via the LoadBalancer IP or DNS:
 
-```url
+\`\`\`url
 http://<LoadBalancer-IP>:3000
+\`\`\`
 
-```
-
+---
 
 ## Step 4: Set Up CI/CD Pipeline with Jenkins
 
@@ -115,6 +117,7 @@ pipeline {
 This Jenkinsfile defines a pipeline with build, test, and deploy stages for automating the deployment of your application.
 
 ---
+
 # Project Documentation with Images
 
 ## Full System Architecture
