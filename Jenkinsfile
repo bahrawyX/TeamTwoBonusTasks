@@ -45,7 +45,18 @@ pipeline {
                     }
                 }
 
-                 stage('SonarQube Analysis') {  // Removed nested 'stage'
+                stage('Terraform Code Check') {
+                    steps {
+                        script {
+                            def scanResult = bat(script: 'terrascan scan', returnStatus: true)
+                            if (scanResult != 0) {
+                                error "Terrascan detected security vulnerabilities. Please review the scan results."
+                            }
+                        }
+                    }
+                }
+
+                stage('SonarQube Analysis') {
                     steps {
                         withSonarQubeEnv('SONARQUBE') { 
                             script {
@@ -58,6 +69,7 @@ pipeline {
                         }
                     }
                 }
+
                 stage('Load Testing') {
                     steps {
                         script {
@@ -65,8 +77,6 @@ pipeline {
                         }
                     }
                 }
-
-
             }
         }
 
@@ -111,7 +121,7 @@ pipeline {
                     }
                 }
 
-                /*
+                
                 Uncomment the following stage when you are ready to apply the Terraform plan
                 stage('Terraform Apply') {
                     steps {
@@ -123,7 +133,7 @@ pipeline {
                         }
                     }
                 }
-                */
+                
 
                 stage('Verify Kubeconfig Path') {
                     steps {
